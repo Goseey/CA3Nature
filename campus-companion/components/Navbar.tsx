@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
@@ -15,10 +16,12 @@ export default function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
   const { user, signOut } = useAuth()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleSignOut = async () => {
     await signOut()
-    router.push('/')
+    setMobileMenuOpen(false)
+    window.location.href = '/' // Full reload
   }
 
   return (
@@ -44,6 +47,51 @@ export default function Navbar() {
             </li>
           ))}
         </ul>
+
+        {/* Mobile menu button */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="mobile-menu-btn"
+          aria-label="Menu"
+        >
+          {mobileMenuOpen ? '✕' : '☰'}
+        </button>
+
+        {/* Mobile menu overlay */}
+        {mobileMenuOpen && (
+          <div className="mobile-menu">
+            <ul>
+              {navLinks.map(({ href, label, icon }) => (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={pathname.startsWith(href) ? 'active' : ''}
+                  >
+                    <span>{icon}</span>
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <div style={{ padding: '16px', borderTop: '1px solid var(--border)' }}>
+              {user ? (
+                <div>
+                  <div style={{ marginBottom: '12px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                    👤 {user.user_metadata?.name || user.email?.split('@')[0]}
+                  </div>
+                  <button onClick={handleSignOut} className="btn-primary" style={{ width: '100%' }}>
+                    Log out
+                  </button>
+                </div>
+              ) : (
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                  <button className="btn-primary" style={{ width: '100%' }}>Log in</button>
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="navbar-actions">

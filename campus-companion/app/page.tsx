@@ -28,13 +28,18 @@ export default function LoginPage() {
         }
         const { error } = await signUp(email, password, name)
         if (error) throw error
-        alert('Account created! You can now sign in.')
+        // Успешная регистрация - переключаемся на Sign In
         setIsSignUp(false)
         setPassword('')
+        setError('')
+        // Показываем сообщение в форме вместо alert
+        setTimeout(() => {
+          setError('✅ Account created! Please sign in.')
+        }, 100)
       } else {
         const { error } = await signIn(email, password)
         if (error) throw error
-        router.push('/events')
+        window.location.href = '/events' // Full page reload to update auth state
       }
     } catch (err: any) {
       setError(err.message || 'Authentication failed')
@@ -180,10 +185,10 @@ export default function LoginPage() {
           {error && (
             <div style={{
               padding: '12px',
-              background: '#fee',
-              border: '1px solid #fcc',
+              background: error.startsWith('✅') ? '#d1fae5' : '#fee',
+              border: `1px solid ${error.startsWith('✅') ? '#10b981' : '#fcc'}`,
               borderRadius: '8px',
-              color: '#c33',
+              color: error.startsWith('✅') ? '#065f46' : '#c33',
               fontSize: '0.9rem'
             }}>
               {error}
