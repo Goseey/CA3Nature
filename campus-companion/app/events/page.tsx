@@ -62,7 +62,11 @@ export default function EventsPage() {
     const matchCat = activeCategory === 'All' || e.category === activeCategory
     return matchSearch && matchCat
   })
-
+const similarEvents = selected
+  ? events
+      .filter(e => e.category === selected.category && e.id !== selected.id)
+      .slice(0, 3)
+  : [];
   return (
     <>
       <div className="page-header">
@@ -213,11 +217,36 @@ export default function EventsPage() {
                   <span>{selected.locations?.name || '—'}</span>
                 </div>
               </div>
+                <h3 style={{ marginTop: '20px' }}>Similar Events</h3>
+
+{similarEvents.length === 0 ? (
+  <p style={{ fontSize: '0.9rem' }}>No similar events</p>
+) : (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+    {similarEvents.map(e => (
+      <div
+        key={e.id}
+        onClick={() => setSelected(e)}
+        style={{
+          padding: '10px',
+          border: '1px solid #ccc',
+          borderRadius: '8px',
+          cursor: 'pointer'
+        }}
+      >
+        <strong>{e.title}</strong>
+        <div style={{ fontSize: '0.8rem' }}>
+          {formatDate(e.date)} at {e.time}
+        </div>
+      </div>
+    ))}
+  </div>
+)}
               <button className="btn btn-ghost" style={{ width: '100%' }} onClick={() => setSelected(null)}>
                 Close
               </button>
             </div>
-          </div>
+          </div>  
         </div>
       )}
     </>
